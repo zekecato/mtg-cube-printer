@@ -127,17 +127,12 @@
   function extractCubeId(raw) {
     const s = raw.trim();
     if (!s) return '';
-    // If it looks like a UUID/short-id (no slashes, no dots), treat as raw id
+    // If it doesn't look like a URL, treat as a raw cube ID
     if (!s.includes('/') && !s.includes('cubecobra.com')) return s;
     try {
       const u = new URL(s);
       const parts = u.pathname.split('/').filter(Boolean);
-      // Cube Cobra paths: /cube/overview/<id>, /cube/list/<id>, etc.
-      const idx = parts.findIndex(p =>
-        ['overview', 'list', 'playtest', 'cube', 'blog'].includes(p)
-      );
-      if (idx >= 0 && idx + 1 < parts.length) return parts[idx + 1];
-      // Fallback: last path segment
+      // Cube Cobra paths are /cube/<view>/<id> — the ID is always the last segment
       return parts[parts.length - 1] || '';
     } catch {
       return s;
