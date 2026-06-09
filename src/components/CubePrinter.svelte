@@ -11,6 +11,7 @@
   const DEFAULT_PAPER = 'a4';
   const DEFAULT_GAP = 2;
   const NO_BOARD = 'no board';
+  const CUT_MARK_LEN = 5; // mm
 
   const PAPER = {
     letter: { w: 215.9, h: 279.4, label: 'Letter (8.5×11″)' },
@@ -79,8 +80,35 @@
 
   let totalPages = $derived(pages.length);
 
+  let gridMetrics = $derived.by(() => {
+    const w = layout.across * CARD_W + Math.max(0, layout.across - 1) * gap;
+    const h = layout.down * CARD_H + Math.max(0, layout.down - 1) * gap;
+    return {
+      w,
+      h,
+      x: (paper.w - w) / 2,
+      y: (paper.h - h) / 2,
+    };
+  });
+
+  let cutMarks = $derived.by(() => {
+    const vertical = [];
+    for (let col = 0; col < layout.across; col += 1) {
+      const left = gridMetrics.x + col * (CARD_W + gap);
+      vertical.push(left, left + CARD_W);
+    }
+
+    const horizontal = [];
+    for (let row = 0; row < layout.down; row += 1) {
+      const top = gridMetrics.y + row * (CARD_H + gap);
+      horizontal.push(top, top + CARD_H);
+    }
+
+    return { vertical, horizontal };
+  });
+
   let printCss = $derived(
-    `@page { size: ${paper.w}mm ${paper.h}mm; margin: ${MARGIN}mm; }`
+    `@page { size: ${paper.w}mm ${paper.h}mm; margin: 0; }`
   );
 
   let pageSummary = $derived(
@@ -690,6 +718,26 @@
       >
         {#each pages as pageCards, pageIdx}
           <div class="page" style="width: {paper.w}mm; height: {paper.h}mm">
+            {#each cutMarks.vertical as x}
+              <span
+                class="cut-mark cut-mark-v"
+                style="left: {x}mm; top: {gridMetrics.y - CUT_MARK_LEN}mm"
+              ></span>
+              <span
+                class="cut-mark cut-mark-v"
+                style="left: {x}mm; top: {gridMetrics.y + gridMetrics.h}mm"
+              ></span>
+            {/each}
+            {#each cutMarks.horizontal as y}
+              <span
+                class="cut-mark cut-mark-h"
+                style="left: {gridMetrics.x - CUT_MARK_LEN}mm; top: {y}mm"
+              ></span>
+              <span
+                class="cut-mark cut-mark-h"
+                style="left: {gridMetrics.x + gridMetrics.w}mm; top: {y}mm"
+              ></span>
+            {/each}
             <div
               class="cards-grid"
               style="grid-template-columns: repeat({layout.across}, {CARD_W}mm); grid-template-rows: repeat({layout.down}, {CARD_H}mm); gap: {gap}mm"
@@ -946,11 +994,30 @@
   .page {
     background: #fff;
     box-shadow: 0 2px 16px rgb(0 0 0 / 0.12);
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 12.5mm;
     position: relative;
+  }
+  .cut-mark {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    pointer-events: none;
+  }
+  .cut-mark-v {
+    width: 0;
+    height: 5mm;
+    border-left: 0.2mm solid #000;
+    transform: translateX(-0.1mm);
+  }
+  .cut-mark-h {
+    width: 5mm;
+    height: 0;
+    border-top: 0.2mm solid #000;
+    transform: translateY(-0.1mm);
   }
   /* ===== CARDS GRID ===== */
   .cards-grid {
@@ -990,9 +1057,12 @@
       break-after: page;
       page-break-after: always;
       margin: 0 !important;
-      padding: 0 !important;
-      width: 100% !important;
-      height: auto !important;
+      padding: 12.5mm !important;
+    }
+    .cut-mark {
+      display: block !important;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
     }
     .page:last-child { break-after: auto; page-break-after: auto; }
   }
