@@ -18,6 +18,7 @@
     legal:  { w: 215.9, h: 355.6, label: 'Legal (8.5×14″)' },
     a4:     { w: 210,   h: 297,   label: 'A4' },
     a3:     { w: 297,   h: 420,   label: 'A3' },
+    '13x19': { w: 330.2, h: 482.6, label: '13×19″' },
   };
 
   const COLOR_OPTIONS = [

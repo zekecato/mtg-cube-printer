@@ -47,7 +47,7 @@ Application state is stored in the URL query string rather than local storage. O
 Supported query parameters:
 
 - `cube`: Cube Cobra cube ID, e.g. `cube=mycube`
-- `paper`: `letter`, `legal`, `a4`, or `a3`
+- `paper`: `letter`, `legal`, `a4`, `a3`, or `13x19`
 - `gap`: card gap in millimeters
 - `type`: whitespace-separated type-line fragments; every fragment must match case-insensitively
 - `tag`: repeat once per selected tag, e.g. `tag=Ramp&tag=Fixing`
@@ -70,6 +70,7 @@ Example:
 | Legal  | 215.9 × 355.6   | 3 × 3 = 9         | 2 × 3 = 6         |
 | A4     | 210 × 297       | 3 × 2 = 6         | 2 × 2 = 4         |
 | A3     | 297 × 420       | 4 × 4 = 16        | 4 × 4 = 16        |
+| 13×19″ | 330.2 × 482.6   | 4 × 5 = 20        | 4 × 5 = 20        |
 
 Magic card size: 63 mm × 88 mm. Margins: 12.5 mm (≈ 1.25 cm).
 
