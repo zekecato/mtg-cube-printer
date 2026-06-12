@@ -110,7 +110,11 @@ type CubeCardDetails = {
   name?: string;
   full_name?: string;
 
-  // Used as the printable card image.
+  // Used to choose the printable card image source.
+  // Live Cube Cobra commonly exposes image_normal only; the app derives
+  // Scryfall png/large variants from cards.scryfall.io URLs when needed.
+  image_png?: string;
+  image_large?: string;
   image_normal?: string;
   image_small?: string;
   image_flip?: string | null;
@@ -145,7 +149,7 @@ type ColorCode = 'W' | 'U' | 'B' | 'R' | 'G' | 'C';
 
 Application rules:
 
-- `details.image_normal` is required for printing. Cards without it are skipped and counted as `skippedWithoutImages`.
+- Printable image source selection happens in `src/lib/printableCards.ts`: prefer PNG, fall back to large JPEG, then normal JPEG, then a top-level custom `imgUrl`. Live Cube Cobra responses often expose only `details.image_normal`, so Scryfall `cards.scryfall.io` image variants are derived from that URL when explicit `details.image_png`/`details.image_large` fields are absent. Cards without any usable printable image URL are skipped and counted as `skippedWithoutImages`.
 - `details.type` is normalized to the app's **Type Line**. Missing type becomes `""`.
 - `details.color_identity` is normalized to uppercase known color codes only: `W`, `U`, `B`, `R`, `G`, `C`.
 - `tags` are read from the top-level `CubeCard.tags`, not from `details`.
@@ -159,6 +163,7 @@ All filtering, pagination, preview, and printing use normalized printable cards 
 type PrintableCard = {
   name: string;
   imageUrl: string;
+  imageFallbackUrls: string[];
   typeLine: string;
   colors: ColorCode[];
   tags: string[];
@@ -205,7 +210,11 @@ The app normalizes it to:
 ```json
 {
   "name": "Black Lotus",
-  "imageUrl": "https://cards.scryfall.io/normal/...jpg",
+  "imageUrl": "https://cards.scryfall.io/png/...png",
+  "imageFallbackUrls": [
+    "https://cards.scryfall.io/large/...jpg",
+    "https://cards.scryfall.io/normal/...jpg"
+  ],
   "typeLine": "Artifact",
   "colors": ["C"],
   "tags": ["Power"],
@@ -215,7 +224,7 @@ The app normalizes it to:
 
 ## Extension notes
 
-- If adding support for custom images or double-faced cards, start at `getImageUrl(card)`. Candidate raw fields include top-level `imgUrl`, top-level `imgBackUrl`, `details.image_normal`, and `details.image_flip`.
+- If adding support for double-faced cards, start at `getPrintableImageUrls(card)`. Candidate raw fields include top-level `imgBackUrl`, `details.image_flip`, and any explicit back-face Scryfall image variants.
 - If adding historical cube loading, pass Cube Cobra's `date=<milliseconds>` query through both direct fetch and `/api/cube`, then document how `changelog` is surfaced.
 - If adding fields to filters or display, normalize them into a small internal schema first; avoid binding UI directly to raw Cube Cobra keys.
 - If changing Print Selection filtering, update `src/lib/printSelectionFilter.test.ts` alongside this section so the documented Type Line, tags, Board, Color Identity, and Multicolor semantics stay executable.

@@ -34,7 +34,11 @@ describe('Printable Card normalization', () => {
       printable: [
         {
           name: 'Black Lotus',
-          imageUrl: 'https://cards.scryfall.io/normal/front/black-lotus.jpg',
+          imageUrl: 'https://cards.scryfall.io/png/front/black-lotus.png',
+          imageFallbackUrls: [
+            'https://cards.scryfall.io/large/front/black-lotus.jpg',
+            'https://cards.scryfall.io/normal/front/black-lotus.jpg',
+          ],
           typeLine: 'Artifact',
           colors: ['C'],
           tags: ['Power'],
@@ -42,7 +46,11 @@ describe('Printable Card normalization', () => {
         },
         {
           name: 'Lightning Bolt',
-          imageUrl: 'https://cards.scryfall.io/normal/front/lightning-bolt.jpg',
+          imageUrl: 'https://cards.scryfall.io/png/front/lightning-bolt.png',
+          imageFallbackUrls: [
+            'https://cards.scryfall.io/large/front/lightning-bolt.jpg',
+            'https://cards.scryfall.io/normal/front/lightning-bolt.jpg',
+          ],
           typeLine: 'Instant',
           colors: ['R'],
           tags: ['Burn'],
@@ -70,7 +78,11 @@ describe('Printable Card normalization', () => {
     expect(result.printable).toEqual([
       {
         name: 'Island',
-        imageUrl: 'https://cards.scryfall.io/normal/front/island.jpg',
+        imageUrl: 'https://cards.scryfall.io/png/front/island.png',
+        imageFallbackUrls: [
+          'https://cards.scryfall.io/large/front/island.jpg',
+          'https://cards.scryfall.io/normal/front/island.jpg',
+        ],
         typeLine: 'Basic Land — Island',
         colors: ['U'],
         tags: [],
@@ -97,6 +109,51 @@ describe('Printable Card normalization', () => {
     });
 
     expect(result.printable[0]?.board).toBe('no board');
+  });
+
+  it('selects printable image sources by print-quality fallback order', () => {
+    const result = getPrintableCards({
+      cards: {
+        mainboard: [
+          {
+            name: 'Explicit Images',
+            details: {
+              image_png: 'https://cards.scryfall.io/png/front/explicit.png',
+              image_large: 'https://cards.scryfall.io/large/front/explicit.jpg',
+              image_normal: 'https://cards.scryfall.io/normal/front/explicit.jpg',
+            },
+          },
+          {
+            name: 'Derived Images',
+            details: {
+              image_normal: 'https://cards.scryfall.io/normal/front/d/1/derived.jpg?1681081654',
+            },
+          },
+          {
+            name: 'Custom Image',
+            imgUrl: 'https://example.test/custom-card.png',
+          },
+        ],
+      },
+    });
+
+    expect(result.printable.map((card) => [card.imageUrl, card.imageFallbackUrls])).toEqual([
+      [
+        'https://cards.scryfall.io/png/front/explicit.png',
+        [
+          'https://cards.scryfall.io/large/front/explicit.jpg',
+          'https://cards.scryfall.io/normal/front/explicit.jpg',
+        ],
+      ],
+      [
+        'https://cards.scryfall.io/png/front/d/1/derived.png?1681081654',
+        [
+          'https://cards.scryfall.io/large/front/d/1/derived.jpg?1681081654',
+          'https://cards.scryfall.io/normal/front/d/1/derived.jpg?1681081654',
+        ],
+      ],
+      ['https://example.test/custom-card.png', []],
+    ]);
   });
 
   it('skips cards without printable image URLs and counts them', () => {
@@ -137,7 +194,11 @@ describe('Printable Card normalization', () => {
 
     expect(result.printable[0]).toEqual({
       name: '',
-      imageUrl: 'https://cards.scryfall.io/normal/front/unknown.jpg',
+      imageUrl: 'https://cards.scryfall.io/png/front/unknown.png',
+      imageFallbackUrls: [
+        'https://cards.scryfall.io/large/front/unknown.jpg',
+        'https://cards.scryfall.io/normal/front/unknown.jpg',
+      ],
       typeLine: '',
       colors: ['G', 'W'],
       tags: ['Ramp', 'Fixing'],

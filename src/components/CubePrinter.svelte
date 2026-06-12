@@ -42,7 +42,7 @@
   let loading = $state(false);
   let error = $state('');
   let info = $state('');
-  let cards = $state(/** @type {{ name: string, imageUrl: string, typeLine: string, colors: string[], tags: string[], board: string }[]} */ ([]));
+  let cards = $state(/** @type {{ name: string, imageUrl: string, imageFallbackUrls: string[], typeLine: string, colors: string[], tags: string[], board: string }[]} */ ([]));
   let typeQuery = $state('');
   let selectedTags = $state(/** @type {string[]} */ ([]));
   let selectedColors = $state(/** @type {string[]} */ ([]));
@@ -375,6 +375,22 @@
     selectedBoards = [];
   }
 
+  function useNextImageFallback(event, fallbackUrls) {
+    const el = event.currentTarget;
+    if (!(el instanceof HTMLImageElement)) return;
+
+    const fallbackIndex = Number(el.dataset.fallbackIndex || '0');
+    const nextUrl = fallbackUrls[fallbackIndex];
+    if (nextUrl) {
+      el.dataset.fallbackIndex = String(fallbackIndex + 1);
+      el.src = nextUrl;
+      return;
+    }
+
+    el.remove();
+    el.parentElement?.classList.add('card-placeholder');
+  }
+
   function canonicalizeLoadedSelections(printableCards) {
     const tags = getTagOptions(printableCards);
     const boards = getBoardOptions(printableCards);
@@ -672,11 +688,7 @@
                     src={card.imageUrl}
                     alt={card.name || `Card ${pageIdx * layout.perPage + cardIdx + 1}`}
                     loading="lazy"
-                    onerror={(e) => {
-                      const el = e.currentTarget;
-                      el.remove();
-                      el.parentElement?.classList.add('card-placeholder');
-                    }}
+                    onerror={(e) => useNextImageFallback(e, card.imageFallbackUrls)}
                   />
                 </div>
               {/each}

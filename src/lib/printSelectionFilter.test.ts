@@ -85,7 +85,8 @@ function names(cards: PrintableCard[]) {
 function card(overrides: Partial<PrintableCard>): PrintableCard {
   return {
     name: '',
-    imageUrl: 'https://cards.scryfall.io/normal/front/card.jpg',
+    imageUrl: 'https://cards.scryfall.io/png/front/card.png',
+    imageFallbackUrls: [],
     typeLine: '',
     colors: [],
     tags: [],
