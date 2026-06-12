@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { getPrintableCards } from '../lib/printableCards';
 
   // ================================================================
   //  CONSTANTS
@@ -10,7 +11,6 @@
 
   const DEFAULT_PAPER = 'a4';
   const DEFAULT_GAP = 2;
-  const NO_BOARD = 'no board';
   const CUT_MARK_LEN = 5; // mm
 
   const PAPER = {
@@ -323,61 +323,6 @@
   function canonicalizeSelection(selection, options) {
     const requested = selection.map((value) => value.toLowerCase());
     return options.filter((option) => requested.includes(option.toLowerCase()));
-  }
-
-  function getImageUrl(card) {
-    return card?.details?.image_normal || '';
-  }
-
-  function getTypeLine(card) {
-    return card?.details?.type || '';
-  }
-
-  function getColors(card) {
-    const rawColors = card?.details?.color_identity;
-
-    return Array.isArray(rawColors)
-      ? uniqueStrings(rawColors.map((color) => String(color).toUpperCase()).filter((color) => COLOR_CODES.includes(color)))
-      : [];
-  }
-
-  function normalizeCard(card, board) {
-    return {
-      name: typeof card.name === 'string' ? card.name : '',
-      imageUrl: getImageUrl(card),
-      typeLine: getTypeLine(card),
-      colors: getColors(card),
-      tags: Array.isArray(card.tags) ? uniqueStrings(card.tags.filter((tag) => typeof tag === 'string')) : [],
-      board,
-    };
-  }
-
-  function getPrintableCards(data) {
-    const boards = data.cards;
-    const printable = [];
-    let skippedWithoutImages = 0;
-
-    function addCard(card, board) {
-      const normalized = normalizeCard(card, board);
-      if (!normalized.imageUrl) {
-        skippedWithoutImages += 1;
-        return;
-      }
-      printable.push(normalized);
-    }
-
-    if (Array.isArray(boards)) {
-      for (const card of boards) addCard(card, NO_BOARD);
-    } else if (boards && typeof boards === 'object') {
-      for (const [board, boardCards] of Object.entries(boards)) {
-        if (!Array.isArray(boardCards)) continue;
-        for (const card of boardCards) addCard(card, board || NO_BOARD);
-      }
-    } else {
-      throw new Error('Unexpected API response (no cards object).');
-    }
-
-    return { printable, skippedWithoutImages };
   }
 
   function getTagOptions(sourceCards) {

@@ -166,15 +166,9 @@ type PrintableCard = {
 };
 ```
 
-Constructed in `src/components/CubePrinter.svelte` by:
+Constructed in `src/lib/printableCards.ts` by `getPrintableCards(data)`.
 
-- `getPrintableCards(data)`
-- `normalizeCard(card, board)`
-- `getImageUrl(card)`
-- `getTypeLine(card)`
-- `getColors(card)`
-
-Keep Cube Cobra-specific defensive parsing in those boundary helpers. Do not spread raw API records through layout or UI code.
+Keep Cube Cobra-specific defensive parsing in the Printable Card normalization module. Do not spread raw API records through Layout, Print Selection, or UI code.
 
 ## Filter semantics over `PrintableCard`
 

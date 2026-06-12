@@ -16,6 +16,10 @@ _Avoid_: Filtered cards, card list
 The subset of loaded cube cards currently included in the printable output.
 _Avoid_: Layout filter, filtered layout
 
+**Printable Card**:
+A normalized card record with the fields needed for preview, printing, and Print Selection filtering. Constructed from Cube Cobra card data before Layout or filtering code touches it.
+_Avoid_: Raw Cube Cobra card, display card
+
 **Board**:
 A Cube Cobra grouping that indicates where a card belongs within the cube list; cards without an API-provided grouping are treated as having no board.
 _Avoid_: Section, bucket
