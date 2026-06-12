@@ -1,3 +1,5 @@
+This is a mostly vibe-coded app. 
+
 # MTG Cube Printer
 
 Print Magic: The Gathering cube card proxies from a [Cube Cobra](https://cubecobra.com) cube URL.
