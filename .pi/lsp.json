@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "svelte": {
+      "command": "node",
+      "args": ["./node_modules/svelte-language-server/bin/server.js", "--stdio"],
+      "fileTypes": [".svelte"],
+      "rootPatterns": ["svelte.config.js", "svelte.config.ts", "package.json", ".git"],
+      "languageId": "svelte"
+    }
+  },
+  "requestTimeout": 60000
+}

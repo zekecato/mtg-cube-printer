@@ -172,7 +172,7 @@ Keep Cube Cobra-specific defensive parsing in the Printable Card normalization m
 
 ## Filter semantics over `PrintableCard`
 
-`matchesFilters(card)` defines the app's current print-selection behavior:
+`filterPrintSelection(cards, filters)` in `src/lib/printSelectionFilter.ts` defines the app's current **Print Selection** behavior. It receives normalized printable cards and selected filter values; it does not read Svelte component state directly.
 
 - **Type Line**: split the query on whitespace; every fragment must appear case-insensitively in `card.typeLine`.
 - **Tags**: when tags are selected, a card matches if it has any selected tag, case-insensitively.
@@ -218,4 +218,5 @@ The app normalizes it to:
 - If adding support for custom images or double-faced cards, start at `getImageUrl(card)`. Candidate raw fields include top-level `imgUrl`, top-level `imgBackUrl`, `details.image_normal`, and `details.image_flip`.
 - If adding historical cube loading, pass Cube Cobra's `date=<milliseconds>` query through both direct fetch and `/api/cube`, then document how `changelog` is surfaced.
 - If adding fields to filters or display, normalize them into a small internal schema first; avoid binding UI directly to raw Cube Cobra keys.
+- If changing Print Selection filtering, update `src/lib/printSelectionFilter.test.ts` alongside this section so the documented Type Line, tags, Board, Color Identity, and Multicolor semantics stay executable.
 - Treat public API examples as illustrative. Validate against live `cubeJSON` responses before relying on exact casing or nesting.

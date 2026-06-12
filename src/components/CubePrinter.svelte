@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { filterPrintSelection } from '../lib/printSelectionFilter';
   import { getPrintableCards } from '../lib/printableCards';
 
   // ================================================================
@@ -69,7 +70,14 @@
 
   let tagOptions = $derived(getTagOptions(cards));
   let boardOptions = $derived(getBoardOptions(cards));
-  let filteredCards = $derived(cards.filter(matchesFilters));
+  let filteredCards = $derived(filterPrintSelection(cards, {
+    typeQuery,
+    selectedTags,
+    selectedColors,
+    includeMulticolor,
+    multicolorOnly,
+    selectedBoards,
+  }));
 
   let pages = $derived.by(() => {
     const result = [];
@@ -333,36 +341,6 @@
 
   function getBoardOptions(sourceCards) {
     return uniqueStrings(sourceCards.map((card) => card.board));
-  }
-
-  function matchesFilters(card) {
-    const fragments = typeQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    if (fragments.length > 0) {
-      const typeLine = card.typeLine.toLowerCase();
-      if (!fragments.every((fragment) => typeLine.includes(fragment))) return false;
-    }
-
-    if (selectedTags.length > 0) {
-      const selected = selectedTags.map((tag) => tag.toLowerCase());
-      if (!card.tags.some((tag) => selected.includes(tag.toLowerCase()))) return false;
-    }
-
-    if (multicolorOnly && card.colors.length <= 1) return false;
-
-    if (selectedColors.length > 0) {
-      if (includeMulticolor || multicolorOnly) {
-        if (!card.colors.some((color) => selectedColors.includes(color))) return false;
-      } else if (card.colors.length !== 1 || !selectedColors.includes(card.colors[0])) {
-        return false;
-      }
-    }
-
-    if (selectedBoards.length > 0) {
-      const selected = selectedBoards.map((board) => board.toLowerCase());
-      if (!selected.includes(card.board.toLowerCase())) return false;
-    }
-
-    return true;
   }
 
   function multiSummary(label, selected) {
